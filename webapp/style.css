@@ -232,6 +232,7 @@ select::-ms-expand{display:none}
 input[type=file]:hover:not(:disabled),input[type=text]:hover:not(:disabled),select:hover:not(:disabled){background-color:#dee1e1}
 input[type=file]:hover:not(:disabled),select:hover:not(:disabled){cursor:pointer;}
 input[type=file]:disabled,select:disabled{color:var(--rom-patcher-color-muted)}
+input[type=file].drag-over:not(:disabled){box-shadow: var(--rom-patcher-color-primary-hover) 0 0 0 2px;}
 
 /* select:focus > option{background-color:#fff} */
 

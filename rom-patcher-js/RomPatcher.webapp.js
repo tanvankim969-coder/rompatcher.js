@@ -676,12 +676,48 @@ const RomPatcherWeb = (function () {
 
 		/* add drag and drop events */
 		if (newSettings && newSettings.allowDropFiles) {
+			const _addDragOverClass = function (elem) { if (!/ drag-over/.test(elem.className)) elem.className += ' drag-over' }
+			const _removeDragOverClass = function (elem) { elem.className = elem.className.replace(/ drag-over/g, '') }
+			const _addDragOverEvents=function(elem){
+				let draggingOver = false, timeout;
+
+				elem.addEventListener('dragenter', function (evt) {
+					if (_dragEventContainsFiles(evt)) {
+						_addDragOverClass(elem);
+						draggingOver = true;
+					}
+				});
+				elem.addEventListener('dragleave', function (evt) {
+					draggingOver = false;
+					if (timeout)
+						clearTimeout(timeout);
+					timeout = setTimeout(function () {
+						if (!draggingOver)
+							_removeDragOverClass(elem);
+					}, 200);
+				});
+				elem.addEventListener('dragover', function (evt) {
+					if (_dragEventContainsFiles(evt)) {
+						//evt.stopPropagation();
+						//evt.preventDefault();
+						draggingOver = true;
+					}
+				});
+				elem.addEventListener('drop', function(evt){
+					evt.stopPropagation();
+					_removeDragOverClass(elem);
+				});
+			}
+
 			window.addEventListener('dragover', function (evt) {
 				if (_dragEventContainsFiles(evt))
 					evt.preventDefault(); /* needed ! */
 			});
 			window.addEventListener('drop', function (evt) {
 				evt.preventDefault();
+				_removeDragOverClass(htmlInputFileRom);
+				if (!validEmbededPatch)
+					_removeDragOverClass(htmlElements.get('input-file-patch'));
 				if (_dragEventContainsFiles(evt)) {
 					const droppedFiles = evt.dataTransfer.files;
 					if (droppedFiles && droppedFiles.length === 1) {
@@ -699,14 +735,9 @@ const RomPatcherWeb = (function () {
 					}
 				}
 			});
-			htmlInputFileRom.addEventListener('drop', function (evt) {
-				evt.stopPropagation();
-			});
-			if (!validEmbededPatch) {
-				htmlElements.get('input-file-patch').addEventListener('drop', function (evt) {
-					evt.stopPropagation();
-				});
-			}
+			_addDragOverEvents(htmlInputFileRom);
+			if (!validEmbededPatch)
+				_addDragOverEvents(htmlElements.get('input-file-patch'));
 		}
 
 		console.log('Rom Patcher JS initialized');
